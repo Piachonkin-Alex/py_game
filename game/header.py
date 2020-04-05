@@ -3,14 +3,16 @@ import random
 
 
 class Barrier:
-    def __init__(self, x, y, width, movement, img):
+    def __init__(self, x, y, width, movement, img) -> None:
+        """Barrier initialization"""
         self.x = x
         self.y = y
         self.width = width
         self.movement = movement
         self.image = img
 
-    def move(self, our_display, display_width):
+    def move(self, our_display) -> None:
+        """Barrier motion"""
         if self.x >= -self.width:
             our_display.blit(self.image, (self.x, self.y))
             self.x -= self.movement
@@ -18,7 +20,8 @@ class Barrier:
         else:
             return False
 
-    def remove_right(self, new_x, new_y, new_width, new_img):
+    def remove_right(self, new_x, new_y, new_width, new_img) -> None:
+        """replace barrier and change"""
         self.x = new_x
         self.y = new_y
         self.width = new_width
@@ -32,7 +35,8 @@ barrier_images.append(pygame.image.load('barrier2.png'))
 barrier_images_size = [[37, 618], [69, 657], [40, 628]]
 
 
-def create_barriers(barrier_list, display_width):
+def create_barriers(barrier_list, display_width) -> None:
+    """Initialization of game Barriers"""
     dist = [100, 500, 900]
     for i in range(3):
         choice = random.randrange(0, 3)
@@ -42,7 +46,8 @@ def create_barriers(barrier_list, display_width):
         barrier_list.append(Barrier(display_width + dist[i], height, width, 5.2, img))
 
 
-def find_distance(barrier_list, display_width):
+def find_distance(barrier_list, display_width) -> int:
+    """calculate future distance between barriers"""
     right_point = max(barrier_list[0].x, barrier_list[1].x, barrier_list[2].x)
     distance = 0
     if right_point < display_width:
@@ -52,16 +57,17 @@ def find_distance(barrier_list, display_width):
     else:
         distance = right_point
     choice_of_dist = random.randrange(0, 12)
-    if choice_of_dist < 4:
+    if choice_of_dist < 6:
         distance += random.randrange(43, 56)
     else:
         distance += random.randrange(280, 450)
     return distance
 
 
-def draw_barries(barrier_list, our_display, display_width):
+def draw_barries(barrier_list, our_display, display_width) -> None:
+    """draw barriers on display"""
     for barrier in barrier_list:
-        checker = barrier.move(our_display, display_width)
+        checker = barrier.move(our_display)
         if not checker:
             distance = find_distance(barrier_list, display_width)
 
@@ -73,27 +79,35 @@ def draw_barries(barrier_list, our_display, display_width):
             barrier.remove_right(distance, height, width, img)
 
 
-def print_text(text: str, cord_x, cord_y, font_type, font_size, our_display):
+def print_text(text: str, cord_x, cord_y, font_type, font_size, our_display) -> None:
+    """print text on display"""
     font = pygame.font.Font(font_type, font_size)
     text = font.render(text, True, (0, 0, 0))
     our_display.blit(text, (cord_x, cord_y))
 
 
-def pause(our_display, clock):
+def pause(our_display, clock) -> None:
+    """game pause"""
     pause_ind = True
+    pygame.mixer.music.pause()
+
     while pause_ind:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
                 quit()
+
         font_type = 'ofont.ru_EE-Bellflower.ttf'
         print_text('Press ENTER to continue', 300, 300, font_type, 37, our_display)
 
         keys = pygame.key.get_pressed()
         if keys[pygame.K_RETURN]:
             pause_ind = False
+
         pygame.display.update()
         clock.tick(15)
+
+    pygame.mixer.music.unpause()
 
 
 chel_images = []
@@ -104,25 +118,28 @@ chel_images.append(pygame.image.load('chel3.png'))
 image_counter = 0
 
 
-def draw_chel(our_display, cord_x, cord_y):
+def draw_char(our_display, cord_x, cord_y) -> None:
+    """drawing character"""
     global image_counter
-    if image_counter == 21:
+    if image_counter == 18:
         image_counter = 0
-    our_display.blit(chel_images[image_counter // 7], (cord_x, cord_y))
+    our_display.blit(chel_images[image_counter // 6], (cord_x, cord_y))
     image_counter += 1
 
 
-def check_conflict(barrier_list, char_x, char_y, char_height, char_width):
+def check_conflict(barrier_list, char_x, char_y, char_height, char_width) -> bool:
+    """check crash"""
     for barrier in barrier_list:
         if char_y + char_height >= barrier.y:
-            if barrier.x <= char_x <= barrier.x + barrier.width:
+            if barrier.x <= char_x + 15 <= barrier.x + barrier.width:
                 return True
-            elif barrier.x <= char_x + char_width - 35 <= barrier.x + barrier.width:
+            elif barrier.x <= char_x + char_width - 60 <= barrier.x + barrier.width:
                 return True
     return False
 
 
-def end_game(our_display, clock, score, prev_max_score):
+def end_game(our_display, clock, score, prev_max_score) -> None:
+    """end game screen"""
     max_score = max(score, prev_max_score)
     end_game_ind = True
     while end_game_ind:

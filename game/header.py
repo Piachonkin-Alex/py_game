@@ -1,5 +1,8 @@
 import pygame
 import random
+import run
+import scoreboard
+import saving
 
 
 # тут хотелось бы дать общий комментарий по поводу вообще работы с pygame. Минус этой штуки в том, что очень часто
@@ -7,6 +10,7 @@ import random
 # к примеру jump. В этом файле вы будете часто видеть, что я передаю всегда свой дисплей и его размеры, и поэтому
 # часто в функции получается много исходных аргументов. Поэтому для меня было изначально удобнее писать все
 # одном файле. Но я все-таки реализацию сложных вычислительных вещей постарался перенести сюда.
+
 
 class Barrier:  # класс барьера
     def __init__(self, x, y, width, movement, img) -> None:  # инициализация по заданным координатам и размеру и img
@@ -36,7 +40,7 @@ class Barrier:  # класс барьера
 
 barrier_images = []  # массив картинок барьеров
 for i in range(3):
-    barrier_images.append(pygame.image.load(f'bar{i}.png'))  # загрузка в массив. //fixed
+    barrier_images.append(pygame.image.load('bar{}.png'.format(str(i))))  # загрузка в массив. //fixed
 
 barrier_images_size = [[47, 608], [58, 628], [85, 645]]  # размеры барьеров
 
@@ -129,7 +133,7 @@ def pause(our_display, clock) -> None:  # пауза
 
 chel_images = []  # массив картинок для анимации персонажа
 for i in range(3):
-    chel_images.append(pygame.image.load(f'chel{i}.png'))
+    chel_images.append(pygame.image.load('chel{}.png'.format(str(i))))
 
 image_counter = 0  # cчетчик смены картинки в анимации
 
@@ -138,7 +142,7 @@ def draw_char(our_display, cord_x, cord_y) -> None:
     """drawing character"""
     # прописовка персонажа на дисплее
     global image_counter
-    if image_counter == 18:
+    if image_counter == 17:
         image_counter = 0
     our_display.blit(chel_images[image_counter // 6], (cord_x, cord_y))
     image_counter += 1
@@ -157,26 +161,54 @@ def check_conflict(barrier_list, char_x, char_y, char_height, char_width) -> boo
     return False
 
 
-def end_game(our_display, clock, score, prev_max_score) -> None:
+need_input = False
+text_input = ''
+
+
+def end_game(our_display, clock, score, prev_max_score, barrier_list, char_x, char_y, high_scores, save_data) -> None:
     # завершение игры.
     """end game screen"""
+    global need_input, text_input
     max_score = max(score, prev_max_score)
     end_game_ind = True
-
+    name = ''
     while end_game_ind:
         for event in pygame.event.get():  # нажали крестик -- вышли
             if event.type == pygame.QUIT:
                 pygame.quit()
                 quit()
+            if need_input and event.type == pygame.KEYDOWN:  # если вводим имя
+                if event.key == pygame.K_TAB:  # нажали таб снова -- закончили вводить имя
+                    name = text_input
+                    if name:  # если имя не пусто -- добавляем в таблицу
+                        high_scores.update_board(name, int(score))
+                        save_data.add_data('score', high_scores.board)
+                    need_input = False
+                    text_input = ''
+                elif event.key == pygame.K_BACKSPACE:  # стирание через бэкспейс
+                    text_input = text_input[:-1]
+                else:
+                    if len(text_input) < 15:  # не более 15 символов
+                        text_input += event.unicode
+
         font_type = 'ofont.ru_EE-Bellflower.ttf'  # шрифт
+        our_display.blit(pygame.image.load('background.png'), (0, 0))
+        for barrier in barrier_list:
+            our_display.blit(barrier.image, (barrier.x, barrier.y))
+        our_display.blit(chel_images[image_counter // 6], (char_x, char_y))
+        if not name:
+            print_text("Press Tab to enter your name:", 90, 400, font_type, 37, our_display)
         first_text = 'Press ENTER to continue, esc to exit'  # надпись при прогрыше
-        print_text(first_text, 200, 300, font_type, 37, our_display)  # ее вывод на экран
+        print_text(first_text, 200, 240, font_type, 37, our_display)  # ее вывод на экран
         second_text = 'Max score is ' + str(int(max_score))  # вывод макс. счета, полученного после открытия игры
-        print_text(second_text, 360, 360, font_type, 37, our_display)
+        print_text(second_text, 360, 300, font_type, 37, our_display)
         keys = pygame.key.get_pressed()
         if keys[pygame.K_RETURN]:  # нажали ENTER -- начали сначала
             return True
         if keys[pygame.K_ESCAPE]:  # нажали ESCAPE -- вышли из игры
             return False
+        if keys[pygame.K_TAB] and not name:  # нажали таб -- водим имя
+            need_input = True
+        print_text(text_input, 650, 400, font_type, 37, our_display)
         pygame.display.update()  # обновление дисплея
         clock.tick(15)

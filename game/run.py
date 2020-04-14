@@ -2,7 +2,7 @@ import random
 import pygame
 import header
 import button
-from scoreboard import *
+import scoreboard
 import saving
 
 pygame.init()
@@ -32,7 +32,7 @@ score = 0  # счет
 max_score = 0  # максимальный счет при запуске окна
 
 save_data = saving.Save()
-high_scores = Scoreboard(save_data.get_data('score'))  # сохраненная таблица рекордов
+high_scores = scoreboard.Scoreboard(save_data.get_data('score'))  # сохраненная таблица рекордов
 
 
 def jump() -> None:
@@ -149,7 +149,9 @@ def run_game() -> bool:  # цикл игры. Сама механика игры
 
         pygame.display.update()  # обновление дисплея
         clock.tick(70)  # частота
-    return header.end_game(our_display, clock, score, max_score, barrier_list, char_x, char_y, high_scores, save_data)
+        args = [our_display, clock, score, max_score, barrier_list]
+        args += [char_x, char_y, high_scores, save_data]
+    return header.end_game(*args)
     # возвращаем True или False, в зависимости от того, хотим ли еще играть
 
 

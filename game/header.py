@@ -165,11 +165,11 @@ need_input = False
 text_input = ''
 
 
-def end_game(our_display, clock, score, prev_max_score, barrier_list, char_x, char_y, high_scores, save_data) -> None:
+def end_game(disp, clock, score, prev_max, barrier_list, ch_x, ch_y, high_scr, data):
     # завершение игры.
     """end game screen"""
     global need_input, text_input
-    max_score = max(score, prev_max_score)
+    max_score = max(score, prev_max)
     end_game_ind = True
     name = ''
     while end_game_ind:
@@ -181,8 +181,8 @@ def end_game(our_display, clock, score, prev_max_score, barrier_list, char_x, ch
                 if event.key == pygame.K_TAB:  # нажали таб снова -- закончили вводить имя
                     name = text_input
                     if name:  # если имя не пусто -- добавляем в таблицу
-                        high_scores.update_board(name, int(score))
-                        save_data.add_data('score', high_scores.board)
+                        high_scr.update_board(name, int(score))
+                        data.add_data('score', high_scr.board)
                     need_input = False
                     text_input = ''
                 elif event.key == pygame.K_BACKSPACE:  # стирание через бэкспейс
@@ -192,16 +192,16 @@ def end_game(our_display, clock, score, prev_max_score, barrier_list, char_x, ch
                         text_input += event.unicode
 
         font_type = 'ofont.ru_EE-Bellflower.ttf'  # шрифт
-        our_display.blit(pygame.image.load('background.png'), (0, 0))
+        disp.blit(pygame.image.load('background.png'), (0, 0))
         for barrier in barrier_list:
-            our_display.blit(barrier.image, (barrier.x, barrier.y))
-        our_display.blit(chel_images[image_counter // 6], (char_x, char_y))
+            disp.blit(barrier.image, (barrier.x, barrier.y))
+        disp.blit(chel_images[image_counter // 6], (ch_x, ch_y))
         if not name:
-            print_text("Press Tab to enter your name:", 90, 400, font_type, 37, our_display)
+            print_text("Press Tab to enter your name:", 90, 400, font_type, 37, disp)
         first_text = 'Press ENTER to continue, esc to exit'  # надпись при прогрыше
-        print_text(first_text, 200, 240, font_type, 37, our_display)  # ее вывод на экран
+        print_text(first_text, 200, 240, font_type, 37, disp)  # ее вывод на экран
         second_text = 'Max score is ' + str(int(max_score))  # вывод макс. счета, полученного после открытия игры
-        print_text(second_text, 360, 300, font_type, 37, our_display)
+        print_text(second_text, 360, 300, font_type, 37, disp)
         keys = pygame.key.get_pressed()
         if keys[pygame.K_RETURN]:  # нажали ENTER -- начали сначала
             return True
@@ -209,6 +209,6 @@ def end_game(our_display, clock, score, prev_max_score, barrier_list, char_x, ch
             return False
         if keys[pygame.K_TAB] and not name:  # нажали таб -- водим имя
             need_input = True
-        print_text(text_input, 650, 400, font_type, 37, our_display)
+        print_text(text_input, 650, 400, font_type, 37, disp)
         pygame.display.update()  # обновление дисплея
         clock.tick(15)

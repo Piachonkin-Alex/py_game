@@ -1,6 +1,9 @@
 import random
 import pygame
 import header
+import button
+from scoreboard import *
+import saving
 
 pygame.init()
 
@@ -28,6 +31,9 @@ jump_count = 33  # счетчик смены координаты прыжка �
 score = 0  # счет
 max_score = 0  # максимальный счет при запуске окна
 
+save_data = saving.Save()
+high_scores = Scoreboard(save_data.get_data('score'))  # сохраненная таблица рекордов
+
 
 def jump() -> None:
     """Do jump"""
@@ -46,10 +52,66 @@ def count_score() -> None:
     score += 1 / 180
 
 
+active_color = (255, 215, 0)
+color = (255, 255, 0)
+
+
+def show_menu() -> None:
+    """Menu"""
+    background = pygame.image.load('background.png')
+    show_men = True
+
+    but_start = button.Button(180, 75, color, active_color)
+    but_records = button.Button(280, 75, color, active_color)  # прорисовка кнопок.
+    but_end = button.Button(120, 75, color, active_color)
+    while show_men:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:  # выход из программы при нажатии крестика
+                pygame.quit()
+                quit()
+        our_display.blit(background, (0, 0))
+        but_start.draw_but(420, 200, 'Start!', our_display, 50, start_game)
+        but_records.draw_but(365, 325, 'Scoreboard', our_display, 50, show_record_table)  # прорисовка кнопок
+        but_end.draw_but(450, 450, 'Quit', our_display, 50, quit)
+        pygame.display.update()
+        clock.tick(60)
+
+
+def show_record_table() -> None:
+    background = pygame.image.load('background.png')
+    show_record = True
+    while show_record:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:  # выход из программы при нажатии крестика
+                pygame.quit()
+                quit()
+        our_display.blit(background, (0, 0))
+        high_scores.print(80, 100, 300, 50, our_display)  # вывод таблицы рекордов
+        keys = pygame.key.get_pressed()
+        if keys[pygame.K_ESCAPE]:
+            show_record = False
+            show_menu()
+        pygame.display.update()  # обновление дисплея
+        clock.tick(30)
+
+
+def start_game():
+    global score, max_score, do_jump, jump_count, char_y
+    while run_game():  # пока запускаем игру
+        if score > max_score:  # меняем максимальный счет, если это надо
+            max_score = score
+        do_jump = False
+        jump_count = 33
+        score = 0
+        char_y = display_height - 60 - char_height  # меняем нужные переменные на начальные условия
+        save_data.add_data('score', high_scores.board)
+        a = 0
+
+
 def run_game() -> bool:  # цикл игры. Сама механика игры -- это цикл, который прерывается только при выходе
     """Game cycle process"""
     global do_jump
-
+    global high_scores
     pygame.mixer.music.play(-1)  # проигрывание музыки
     background = pygame.image.load(r'background.png').convert()  # загрузка изображения фона
     game = True
@@ -87,21 +149,11 @@ def run_game() -> bool:  # цикл игры. Сама механика игры
 
         pygame.display.update()  # обновление дисплея
         clock.tick(70)  # частота
-    return header.end_game(our_display, clock, score, max_score)
+    return header.end_game(our_display, clock, score, max_score, barrier_list, char_x, char_y, high_scores, save_data)
     # возвращаем True или False, в зависимости от того, хотим ли еще играть
 
 
-while run_game():  # пока запускаем игру
-    if score > max_score:  # меняем максимальный счет, если это надо
-        max_score = score
-    do_jump = False
-    jump_count = 33
-    score = 0
-    char_y = display_height - 60 - char_height  # меняем нужные переменные на начальные условия
+show_menu()
+
 pygame.quit()
 quit()
-
-# потенциал развития -- огромен. как в плане улучшения самой игры, например реализации столкновений
-# -- они тут не идеальны, так и в плане удобства -- начальное меню, таблица рекордов и тд.
-# возможно при повторном отправлении что-то добавится)
-

@@ -16,7 +16,8 @@ clock = pygame.time.Clock()  # счетчик кадров и времени
 display_width = 1024
 display_height = 768  # размеры дисплея
 
-our_display = pygame.display.set_mode((display_width, display_height))  # создание дисплея
+our_display = pygame.display.set_mode((display_width, display_height))
+# создание дисплея
 pygame.display.set_caption('Subway Surf 2D')
 
 char_width = 111
@@ -32,7 +33,9 @@ score = 0  # счет
 max_score = 0  # максимальный счет при запуске окна
 
 save_data = saving.Save()
-high_scores = scoreboard.Scoreboard(save_data.get_data('score'))  # сохраненная таблица рекордов
+
+high_scores = scoreboard.Scoreboard(save_data.get_data('score'))
+# сохраненная таблица рекордов
 
 
 def jump() -> None:
@@ -71,7 +74,8 @@ def show_menu() -> None:
                 quit()
         our_display.blit(background, (0, 0))
         but_start.draw_but(420, 200, 'Start!', our_display, 50, start_game)
-        but_records.draw_but(365, 325, 'Scoreboard', our_display, 50, show_record_table)  # прорисовка кнопок
+        but_records.draw_but(365, 325, 'Scoreboard', our_display, 50, show_record_table)
+        # прорисовка кнопок
         but_end.draw_but(450, 450, 'Quit', our_display, 50, quit)
         pygame.display.update()
         clock.tick(60)
@@ -108,12 +112,14 @@ def start_game():
         a = 0
 
 
-def run_game() -> bool:  # цикл игры. Сама механика игры -- это цикл, который прерывается только при выходе
+def run_game() -> bool:
+    # цикл игры. Сама механика игры -- это цикл, который прерывается только при выходе
     """Game cycle process"""
     global do_jump
     global high_scores
     pygame.mixer.music.play(-1)  # проигрывание музыки
-    background = pygame.image.load(r'background.png').convert()  # загрузка изображения фона
+    background = pygame.image.load(r'background.png').convert()
+    # загрузка изображения фона
     game = True
 
     barrier_list = []
@@ -138,7 +144,8 @@ def run_game() -> bool:  # цикл игры. Сама механика игры
         count_score()  # счет очков не забываем
 
         our_display.blit(background, (0, 0))  # заливка фона на дисплей
-        header.print_text('score: ' + str(int(score)), 45, 22, font_type, 35, our_display)  # табло очков на фоне
+        header.print_text('score: ' + str(int(score)), 45, 22, font_type, 35, our_display)
+        # табло очков на фоне
         header.draw_barries(barrier_list, our_display, display_width)  # прорисовка барьеров
         header.draw_char(our_display, char_x, char_y)  # прорисовка персонажа
 

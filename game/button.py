@@ -13,7 +13,7 @@ class Button:
         self.color = color  # цвет пока не навели
         self.active_color = active_color  # цвет когда навели
 
-    def draw_but(self, cord_x: int, cord_y: int, text: int, our_display, font_size: int, action=None) -> None:
+    def draw_but(self, cord_x, cord_y, text, our_display, font_size, action=None) -> None:
         """draw button"""
 
         mouse = pygame.mouse.get_pos()  # координата мышки

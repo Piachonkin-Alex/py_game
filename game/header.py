@@ -1,8 +1,5 @@
 import pygame
 import random
-import run
-import scoreboard
-import saving
 
 
 # тут хотелось бы дать общий комментарий по поводу вообще работы с pygame. Минус этой штуки в том, что очень часто
@@ -227,3 +224,6 @@ def end_game(disp, clock, score, prev_max, barrier_list, ch_x, ch_y, high_scr, d
         print_text(text_input, 650, 400, font_type, 37, disp)
         pygame.display.update()  # обновление дисплея
         clock.tick(15)
+
+
+import run

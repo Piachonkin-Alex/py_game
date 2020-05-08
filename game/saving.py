@@ -1,4 +1,3 @@
-import shelve
 import json
 from typing import Any
 
